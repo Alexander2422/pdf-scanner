@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+app/uploads/*
+!app/uploads/.gitkeep
+app/output/*
+!app/output/.gitkeep
+data/
+.claude/

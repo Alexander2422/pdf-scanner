@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scan App</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main>
+    <h1>📄 Scan App</h1>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flash">
+          {% for m in messages %}<li>{{ m }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Upload form -->
+    <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+      <input type="file" name="images" accept="image/*" multiple required>
+      <button type="submit">Upload</button>
+    </form>
+
+    <!-- Thumbnails of current batch -->
+    <section class="gallery" id="gallery">
+      {% for img in images %}
+        <div class="thumb" data-filename="{{ img }}">
+          <span class="drag-handle" title="Drag to reorder">⠿</span>
+          <span class="thumb-index"></span>
+          <img src="{{ url_for('uploaded_file', batch_id=batch_id, filename=img) }}" alt="">
+          <form action="{{ url_for('delete_image', batch_id=batch_id, filename=img) }}" method="post">
+            <button type="submit" class="remove-btn">✕</button>
+          </form>
+        </div>
+      {% else %}
+        <p class="empty">No images uploaded yet.</p>
+      {% endfor %}
+    </section>
+
+    {% if images %}
+      <p class="reorder-hint">Drag <span class="drag-handle-inline">⠿</span> to reorder — this order is used for "One combined PDF".</p>
+    {% endif %}
+
+    <!-- Export form: asks per the earlier decision -->
+    {% if images %}
+      <form action="{{ url_for('export') }}" method="post" class="export-form">
+        <input type="hidden" name="order" id="order-input">
+        <fieldset>
+          <legend>Export as:</legend>
+          <label><input type="radio" name="export_mode" value="single" checked> One combined PDF</label>
+          <label><input type="radio" name="export_mode" value="separate"> One PDF per image</label>
+        </fieldset>
+        <fieldset>
+          <legend>Scan style:</legend>
+          <label><input type="radio" name="scan_mode" value="color" checked> Color (enhanced)</label>
+          <label><input type="radio" name="scan_mode" value="bw"> Black &amp; white (crisp text)</label>
+        </fieldset>
+        <button type="submit">Export</button>
+      </form>
+    {% endif %}
+  </main>
+
+  <script>
+    (function () {
+      const gallery = document.getElementById('gallery');
+      if (!gallery) return;
+
+      function renumber() {
+        gallery.querySelectorAll('.thumb').forEach((el, i) => {
+          const badge = el.querySelector('.thumb-index');
+          if (badge) badge.textContent = i + 1;
+        });
+      }
+      renumber();
+
+      let dragging = null;
+
+      function reorderTo(x, y) {
+        const others = [...gallery.querySelectorAll('.thumb')].filter((t) => t !== dragging);
+        let closest = null;
+        let closestDist = Infinity;
+        for (const el of others) {
+          const box = el.getBoundingClientRect();
+          const cx = box.left + box.width / 2;
+          const cy = box.top + box.height / 2;
+          const dist = Math.hypot(x - cx, y - cy);
+          if (dist < closestDist) {
+            closestDist = dist;
+            closest = el;
+          }
+        }
+        if (!closest) return;
+        const box = closest.getBoundingClientRect();
+        const insertAfter = x > box.left + box.width / 2;
+        gallery.insertBefore(dragging, insertAfter ? closest.nextSibling : closest);
+        renumber();
+      }
+
+      // Pointer Events (not the native HTML5 Drag-and-Drop API) so this
+      // works with touch on a phone, not just a mouse — this app is
+      // mainly used from a phone browser over the LAN.
+      gallery.addEventListener('pointerdown', (e) => {
+        const handle = e.target.closest('.drag-handle');
+        if (!handle) return;
+        const thumb = handle.closest('.thumb');
+        if (!thumb) return;
+        dragging = thumb;
+        thumb.classList.add('dragging');
+        handle.setPointerCapture(e.pointerId);
+        e.preventDefault();
+      });
+
+      gallery.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        reorderTo(e.clientX, e.clientY);
+      });
+
+      function stopDragging() {
+        if (dragging) dragging.classList.remove('dragging');
+        dragging = null;
+      }
+      gallery.addEventListener('pointerup', stopDragging);
+      gallery.addEventListener('pointercancel', stopDragging);
+
+      const exportForm = document.querySelector('.export-form');
+      const orderInput = document.getElementById('order-input');
+      if (exportForm && orderInput) {
+        exportForm.addEventListener('submit', () => {
+          orderInput.value = [...gallery.querySelectorAll('.thumb')]
+            .map((t) => t.dataset.filename)
+            .join(',');
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

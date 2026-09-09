@@ -1,0 +1,101 @@
+body {
+  font-family: system-ui, sans-serif;
+  background: #f4f4f5;
+  margin: 0;
+  padding: 2rem;
+}
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+h1 { margin-top: 0; }
+form { margin: 1rem 0; }
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.thumb {
+  position: relative;
+  width: 170px;
+  user-select: none;
+}
+.thumb.dragging {
+  opacity: 0.4;
+}
+.thumb img {
+  width: 170px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  display: block;
+}
+.remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  z-index: 2;
+}
+.drag-handle {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.55);
+  color: white;
+  border-radius: 4px;
+  font-size: 16px;
+  line-height: 1;
+  cursor: grab;
+  touch-action: none;
+  z-index: 2;
+}
+.thumb.dragging .drag-handle {
+  cursor: grabbing;
+}
+.thumb-index {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  background: rgba(0,0,0,0.55);
+  color: white;
+  border-radius: 4px;
+  padding: 1px 7px;
+  font-size: 12px;
+  z-index: 2;
+}
+.reorder-hint {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: -0.5rem;
+}
+.drag-handle-inline {
+  display: inline-block;
+}
+.empty { color: #888; }
+.export-form fieldset {
+  border: none;
+  padding: 0;
+  margin: 0 0 1rem 0;
+}
+.export-form label { display: block; margin: 0.25rem 0; }
+.flash { color: #b00020; }
+.pdf-list { list-style: none; padding: 0; }
+.pdf-list li { margin: 0.5rem 0; }

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Export complete</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main>
+    <h1>✅ Export complete</h1>
+    <ul class="pdf-list">
+      {% for name in pdf_files %}
+        <li><a href="{{ url_for('download', batch_id=batch_id, filename=name) }}">{{ name }}</a></li>
+      {% endfor %}
+    </ul>
+    <a href="{{ url_for('index') }}">&larr; Back to upload</a>
+  </main>
+</body>
+</html>

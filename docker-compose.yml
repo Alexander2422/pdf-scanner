@@ -1,0 +1,12 @@
+services:
+  scan-app:
+    build: .
+    container_name: scan-app
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data/uploads:/app/uploads
+      - ./data/output:/app/output
+    environment:
+      - SCAN_APP_SECRET=change-this-to-something-random
+    restart: unless-stopped
